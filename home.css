@@ -1,0 +1,105 @@
+/* Definindo variáveis de cores para facilitar a manutenção e reutilização */
+:root {
+    /* Cor de fundo primária para o corpo e o cabeçalho */
+    --primary-bg-color: #DEDEEA;
+
+    /* Cor de fundo secundária para áreas específicas */
+    --secondary-bg-color: #8488B5;
+}
+
+/* Estilização do corpo da página */
+body {
+    /* Aplicando a cor de fundo primária */
+    background-color: var(--primary-bg-color) !important;
+}
+
+/* Estilização do cabeçalho */
+header {
+    /* Usando a cor de fundo primária no cabeçalho */
+    background-color: var(--primary-bg-color);
+}
+
+/* Configuração da imagem de logo */
+img.logo {
+    /* Definindo a largura da logo */
+    width: 30rem;
+
+    /* Bordas arredondadas para a logo */
+    border-radius: 1rem;
+}
+
+/* Ajuste de padding para a div que contém a logo */
+div.logo {
+    /* Espaçamento superior */
+    padding-top: 1rem;
+
+    /* Espaçamento inferior */
+    padding-bottom: 0.5rem;
+}
+
+/* Estilização de imagem específica (classe 'sala') */
+img.sala {
+    /* Preenchendo toda a altura da coluna */
+    height: 100%;
+
+    /* Ajuste da imagem para cobrir o container sem distorção */
+    object-fit: cover;
+
+    /* Bordas arredondadas no canto superior direito */
+    border-top-right-radius: 15rem;
+
+    /* Bordas arredondadas no canto superior esquerdo */
+    border-top-left-radius: 2rem;
+
+    /* Bordas arredondadas no canto inferior esquerdo */
+    border-bottom-left-radius: 2rem;
+
+    /* Aplicando a cor de fundo secundária */
+    background-color: var(--secondary-bg-color);
+}
+
+/* Estilização da seção principal (classe 'corpo') */
+main.corpo {
+    /* Aplicando a cor de fundo secundária */
+    background-color: var(--secondary-bg-color);
+
+    box-shadow: -1rem -2rem #78acc1;
+
+    /* Espaçamento interno */
+    padding: 2rem;
+
+    /* Espaçamento externo */
+    margin: 2rem;
+
+    /* Bordas arredondadas */
+    border-radius: 3rem;
+}
+
+table{
+    background-color: var(--primary-bg-color);
+}
+
+/* Estilização do formulário */
+form {
+    /* Cor de fundo secundária para o formulário */
+    background-color: var(--primary-bg-color);
+
+
+
+    /* Alinhamento do texto à esquerda */
+    text-align: left;
+
+    /* Espaçamento interno generoso */
+    padding: 5rem;
+
+    border-radius: 3rem;
+}
+
+button{
+    background-color: #98bfd0;
+}
+
+/* Ajuste de largura do elemento no footer */
+footer {
+    width: fit-content;
+}
