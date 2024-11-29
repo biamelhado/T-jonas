@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <!-- Define o conjunto de caracteres como UTF-8 -->
     <meta charset="UTF-8">
@@ -51,64 +52,64 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <?php
-// Configuração do banco de dados
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "salas";
+                            <?php
+                            // Configuração do banco de dados
+                            $servername = "localhost";
+                            $username = "root";
+                            $password = "";
+                            $dbname = "salas";
 
-// Criar a conexão
-$conn = new mysqli($servername, $username, $password, $dbname);
+                            // Criar a conexão
+                            $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Verificar a conexão
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
-}
+                            // Verificar a conexão
+                            if ($conn->connect_error) {
+                                die("Falha na conexão: " . $conn->connect_error);
+                            }
 
-// Consulta para obter todas as reservas com junção das tabelas user e sala
-$sql = "
+                            // Consulta para obter todas as reservas com junção das tabelas user e sala
+                            $sql = "
     SELECT u.nome, s.numsala, r.datareserva, r.horarioinicial, r.horariofinal
     FROM reservas r
     JOIN user u ON u.nome = u.nome
     JOIN sala s ON s.numsala = s.numsala";
 
-$resultAllReservas = $conn->query($sql);
+                            $resultAllReservas = $conn->query($sql);
 
-// Verificar se há resultados
-if ($resultAllReservas->num_rows > 0) {
-    // Exibir os dados
-    while ($row = $resultAllReservas->fetch_assoc()) {
-        echo "<tr>
+                            // Verificar se há resultados
+                            if ($resultAllReservas->num_rows > 0) {
+                                // Exibir os dados
+                                while ($row = $resultAllReservas->fetch_assoc()) {
+                                    echo "<tr>
                 <td>" . $row['nome'] . "</td>
                 <td>" . $row['numsala'] . "</td>
                 <td>" . $row['datareserva'] . "</td>
                 <td>" . $row['horarioinicial'] . " - " . $row['horariofinal'] . "</td>
               </tr>";
-    }
-} else {
-    echo "<tr><td colspan='4'>Nenhuma reserva encontrada</td></tr>";
-}
+                                }
+                            } else {
+                                echo "<tr><td colspan='4'>Nenhuma reserva encontrada</td></tr>";
+                            }
 
-$conn->close();
-?>
+                            $conn->close();
+                            ?>
 
                             <?php if ($resultAllReservas != null) { ?>
-                            <?php while ($row = $resultAllReservas->fetch_assoc()) { ?>
-                            <tr>
-                                <td>
-                                    <?= $row['nome'] ?>
-                                </td>
-                                <td>
-                                    <?= $row['numsala'] ?>
-                                </td>
-                                <td>
-                                    <?= $row['datareserva'] ?>
-                                </td>
-                                <td>
-                                    <?= $row['horario'] ?>
-                                </td>
-                            </tr>
+                                <?php while ($row = $resultAllReservas->fetch_assoc()) { ?>
+                                    <tr>
+                                        <td>
+                                            <?= $row['nome'] ?>
+                                        </td>
+                                        <td>
+                                            <?= $row['numsala'] ?>
+                                        </td>
+                                        <td>
+                                            <?= $row['datareserva'] ?>
+                                        </td>
+                                        <td>
+                                            <?= $row['horario'] ?>
+                                        </td>
+                                    </tr>
                             <?php }
                             } ?>
                         </tbody>
@@ -117,6 +118,9 @@ $conn->close();
 
                 <!-- Botão que abre o modal de cadastro -->
                 <button type="button" class="btn w-100" data-bs-toggle="modal" data-bs-target="#cadsModal">CADASTRAR SALAS</button>
+                <!-- Botão que abre o modal de vizualização e edição de Salas -->
+                <button type="button" class="btn w-100" data-bs-toggle="modal" data-bs-target="#editModal">Edição e
+                    Visualização de Salas</button>
 
             </div>
         </div>
@@ -134,7 +138,7 @@ $conn->close();
 
                 <!-- Corpo do modal com o formulário de cadastro -->
                 <div class="modal-body">
-                <form action="cadastro-salas.php" method="POST">
+                    <form action="cadastro-salas.php" method="POST">
                         <div class="mb-2">
                             <label for="nomesala" class="form-label">Nome da sala::</label>
                             <input type="text" class="form-control" id="numsala" name="numsala" required>
@@ -151,6 +155,77 @@ $conn->close();
             </div>
         </div>
     </div>
+
+    <!-- Modal para edição e visualização de salas -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Cabeçalho do modal -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">SALAS</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"
+                        aria-describedby="editModalLabel"></button>
+                </div>
+
+                <!-- Corpo do modal com o formulário de cadastro -->
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-warning">
+                                <tr>
+                                    <th>Número</th>
+                                    <th>Lugares</th>
+                                    <th>Edição</th>
+                                    <th>Exclusão</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sala-list">
+                                <!-- Usar AJAX para carregar os dados dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <!-- Exemplo de botão de fechar -->
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supondo que você está utilizando jQuery ou JavaScript para manuseio
+        $(document).ready(function() {
+            // Ação para abrir o modal de edição
+            $('body').on('click', '.edit-btn', function() {
+                var salaId = $(this).data('id'); // Obtém o ID da sala para editar
+                // Carregar dados da sala com AJAX (exemplo)
+                $.ajax({
+                    url: 'editar_sala.php',
+                    type: 'GET',
+                    data: {
+                        id: salaId
+                    },
+                    success: function(response) {
+                        // Preencher campos do modal com os dados da sala
+                        $('#editModal .modal-body').html(response);
+                        $('#editModal').modal('show');
+                    }
+                });
+            });
+
+            // Ação para excluir uma sala com confirmação
+            $('body').on('click', '.delete-btn', function() {
+                var salaId = $(this).data('id'); // Obtém o ID da sala a ser excluída
+                if (confirm('Você tem certeza que deseja excluir esta sala?')) {
+                    // Realizar a exclusão via AJAX ou redirecionamento
+                    window.location.href = 'excluir_sala.php?id=' + salaId;
+                }
+            });
+        });
+    </script>
 </main>
 <!-- Rodapé com a informação de desenvolvimento -->
 <footer class="rodape mt-5 py-3 text-black">
@@ -159,33 +234,6 @@ $conn->close();
         <p class="m-0">DESENVOLVIDO POR BBE®</p>
     </div>
 </footer>
-
-<!-- Script para alternar a exibição da senha e validar os campos -->
-<script>
-    function toggleSenha(event) {
-        // Impede que o botão provoque o envio do formulário
-        event.preventDefault();
-        const senhaInput = document.getElementById('senha');
-        const senhaIcon = document.getElementById('senha-icon');
-        if (senhaInput.type === 'password') {
-            senhaInput.type = 'text';
-            senhaIcon.classList.remove('bi-eye-slash');
-            senhaIcon.classList.add('bi-eye');
-        } else {
-            senhaInput.type = 'password';
-            senhaIcon.classList.remove('bi-eye');
-            senhaIcon.classList.add('bi-eye-slash');
-        }
-        document.querySelector('form').addEventListener('submit', function (event) {
-            const senha = document.getElementById('cad-senha').value;
-            const confirmaSenha = document.getElementById('confirma-senha').value;
-            if (senha !== confirmaSenha) {
-                event.preventDefault();
-                alert("As senhas não coincidem!");
-            }
-        });
-    }
-</script>
 
 </body>
 
