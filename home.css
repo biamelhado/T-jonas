@@ -75,17 +75,8 @@ main.corpo {
     border-radius: 3rem;
 }
 
-div.tabela {
-    color: var(--primary-bg-color);
-}
-
-table,
-th,
-tr {
-    background-color: var(--primary-bg-color) !important;
-    border: 0.5rem;
-    border-color: var(--secondary-bg-color);
-    text-align: center;
+table{
+    background-color: var(--primary-bg-color);
 }
 
 /* Estilização do formulário */
@@ -104,12 +95,11 @@ form {
     border-radius: 3rem;
 }
 
-button {
+button{
     background-color: #98bfd0;
 }
 
 /* Ajuste de largura do elemento no footer */
 footer {
-    align-items: center; 
     width: fit-content;
 }

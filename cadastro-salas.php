@@ -14,17 +14,17 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $numsala = isset($_POST['numsala']) ? $_POST['numsala'] : null;
-    $num_act = isset($_POST['num_act']) ? (int)$_POST['num_act'] : null;
+    $nomesala = isset($_POST['nomesala']) ? $_POST['nomesala'] : null;
+    $qtdlugares = isset($_POST['qtdlugares']) ? (int)$_POST['qtdlugares'] : null;
 
     // Exibir valores recebidos para debug
-    echo "numsala: $numsala, num_act: $num_act"; // Para ver os valores recebidos
+    echo "nomesala: $nomesala, qtdlugares: $qtdlugares"; // Para ver os valores recebidos
     
-    if (!empty($numsala) && !empty($num_act)) {
+    if (!empty($nomesala) && !empty($qtdlugares)) {
         // Inserir dados no banco
-        $sql = "INSERT INTO sala (numsala, num_act) VALUES (?, ?)";
+        $sql = "INSERT INTO sala (nomesala, qtdlugares) VALUES (?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("si", $numsala, $num_act);
+        $stmt->bind_param("si", $nomesala, $qtdlugares);
 
         if ($stmt->execute()) {
             echo "<script>alert('Sala cadastrada com sucesso!'); window.location.href = 'todas-reservas.php';</script>";

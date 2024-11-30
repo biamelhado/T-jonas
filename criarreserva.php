@@ -1,13 +1,14 @@
 <?php
-session_start();
+// Ativar a sessão
+session_start(); 
 
-// Verifica se o usuário está logado
-if (!isset($_SESSION['email'])) {
-    header("Location: reservas.php");
+// Verifique se o usuário está logado
+if (!isset($_SESSION["email"])) {
+    echo '<script>alert("Usuário não está logado!"); window.location="login.php";</script>';
     exit();
 }
 
-// Configurações do banco de dados
+// Dados de conexão ao banco de dados
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -16,54 +17,77 @@ $dbname = "salas";
 // Cria a conexão com o banco de dados
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Verifica a conexão
+// Verifica a conexão com o banco de dados
 if ($conn->connect_error) {
     die("Conexão falhou: " . $conn->connect_error);
 }
 
-// Verifica se o link foi clicado e se a sala foi selecionada
-if (isset($_GET['id_sala']) && isset($_SESSION['datareserva'])) {
-    // Recupera os dados da reserva da sessão
-    $numsala = $_GET['numsala'];
-    $num_act = $_SESSION['num_act'];
-    $datareserva = $_SESSION['datareserva'];
-    $horarioinicial = $_SESSION['horarioinicial'];
-    $horariofinal = $_SESSION['horariofinal'];
+// Armazena o email do usuário, id da sala e outros dados de reserva
+$email = $_SESSION["email"]; 
+$id_sala = $_GET["id_sala"]; 
+$qtdlugares = $_SESSION["qtdlugares"];
+$datareserva = $_SESSION["datareserva"];
+$horarioinicial = $_SESSION["horarioinicial"];
+$horariofinal = $_SESSION["horariofinal"];
 
-    // Recupera o id_user baseado no email do usuário
-    $email = $_SESSION['email'];
-    $sqlUser = "SELECT id_user FROM user WHERE email = '$email'";
-    $resultUser = $conn->query($sqlUser);
-    
-    if ($resultUser->num_rows > 0) {
-        $rowUser = $resultUser->fetch_assoc();
-        $nome = $rowUser['nome'];
-
-        // Insere a reserva na tabela 'reservas'
-        $sqlReserva = "INSERT INTO reservas (nome, num_act, datareserva, horarioinicial, horariofinal) 
-                       VALUES ('$nome', '$num_act', '$datareserva', '$horarioinicial', '$horariofinal')";
-        
-        if ($conn->query($sqlReserva) === TRUE) {
-            // Recupera o ID da reserva recém-criada
-            $id_reserva = $conn->insert_id;
-
-            // Insere a relação entre a sala e a reserva na tabela 'sala_reservas'
-            $sqlSalaReserva = "INSERT INTO sala_reservas (id_sala, id_reserva) VALUES ('$id_sala', '$id_reserva')";
-
-            if ($conn->query($sqlSalaReserva) === TRUE) {
-                echo "Reserva feita com sucesso!";
-            } else {
-                echo "Erro ao associar sala à reserva: " . $conn->error;
-            }
-        } else {
-            echo "Erro ao criar a reserva: " . $conn->error;
-        }
-    } else {
-        echo "Usuário não encontrado!";
-    }
-} else {
-    echo "Dados de reserva não encontrados!";
+// Verifica se os dados necessários da reserva estão na sessão
+if (!isset($qtdlugares, $datareserva, $horarioinicial, $horariofinal)) {
+    echo '<script>alert("Dados de reserva não encontrados!"); window.location="reservas.php";</script>';
+    exit();
 }
 
+// Obtém a capacidade total da sala
+$sql_capacity = "SELECT qtdlugares FROM sala WHERE id_sala = ?";
+$stmt_capacity = $conn->prepare($sql_capacity);
+$stmt_capacity->bind_param("i", $id_sala);
+$stmt_capacity->execute();
+$result_capacity = $stmt_capacity->get_result();
+if ($result_capacity->num_rows === 0) {
+    echo '<script>alert("Sala não encontrada!"); window.location="reservas.php";</script>';
+    exit();
+}
+$row_capacity = $result_capacity->fetch_assoc();
+$max_lugares = $row_capacity["qtdlugares"];
+
+// Verifica se já existe uma reserva para a sala no mesmo horário e data
+$sql_check = "SELECT * FROM reservas 
+              WHERE id_sala = ? 
+              AND datareserva = ? 
+              AND (
+                  (horarioinicial <= ? AND horariofinal > ?)  -- Caso a reserva do usuário termine depois do horário inicial
+                  OR
+                  (horarioinicial < ? AND horariofinal >= ?)  -- Caso a reserva do usuário inicie antes do horário final
+              )";
+
+$stmt_check = $conn->prepare($sql_check);
+$stmt_check->bind_param("issssss", $id_sala, $datareserva, $horarioinicial, $horarioinicial, $horariofinal);
+$stmt_check->execute();
+$result_check = $stmt_check->get_result();
+
+// Se houver uma reserva para o mesmo horário e dia, exibe um alerta
+if ($result_check->num_rows > 0) {
+    echo '<script>alert("A sala já está reservada para este horário e data. Por favor, escolha outro horário."); window.location="reservas.php";</script>';
+    exit();
+}
+// Prepara a declaração SQL para inserir os dados na tabela 'reservas'
+$stmt = $conn->prepare("
+    INSERT INTO reservas (id_user, id_sala, qtdlugares, datareserva, horarioinicial, horariofinal) 
+    VALUES ((SELECT u.id_user FROM user u WHERE u.email = ? LIMIT 1), ?, ?, ?, ?, ?)
+");
+
+// Vincula os parâmetros à declaração preparada
+$stmt->bind_param("siisss", $email, $id_sala, $qtdlugares, $datareserva, $horarioinicial, $horariofinal);
+
+// Executa a declaração de inserção
+if ($stmt->execute()) {
+    echo '<script>alert("Reserva realizada com sucesso!");</script>';
+} else {
+    echo '<script>alert("Erro ao realizar reserva: ' . $stmt->error . '");</script>';
+}
+
+// Redireciona para a página de reservas após a operação
+echo "<script type='text/javascript'>window.location='reservas.php';</script>";
+
+// Fecha a conexão com o banco de dados
 $conn->close();
 ?>

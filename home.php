@@ -3,7 +3,53 @@
 ob_start();
 session_start();
 
+// Conectar ao banco de dados
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "salas";
 
+// Conectar ao banco de dados
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+if (!$conn) {
+    die("Conexão falhou: " . mysqli_connect_error());
+}
+
+// Login do usuário
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['salvar'])) {
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $senha = $_POST['senha'];
+
+    // Buscar usuário pelo email
+    $sql = "SELECT * FROM user WHERE email = '$email'";
+    $result = mysqli_query($conn, $sql);
+
+    if ($result && mysqli_num_rows($result) == 1) {
+        $user = mysqli_fetch_assoc($result);
+
+        // Comparar a senha diretamente (sem criptografia)
+        if ($senha === $user['senha']) {
+            // Inicia a sessão para o usuário logado
+            $_SESSION["email"] = $user['email'];
+            $_SESSION["id_user"] = $user['id_user'];
+
+            // Redireciona com base no tipo de usuário
+            if ($email == 'admreunaaqui@gmail.com') {
+                header("Location: todas-reservas.php");
+                exit;
+            } else {
+                header("Location: reservas.php");
+                exit;
+            }
+        } else {
+            echo '<script>alert("Senha incorreta!");</script>';
+        }
+    } else {
+        echo '<script>alert("E-mail não encontrado!");</script>';
+    }
+}
+
+mysqli_close($conn);
 ?>
 
 <!DOCTYPE html>
@@ -61,6 +107,22 @@ session_start();
             </div>
         </div>
 
+        <script>
+            function toggleSenha(event) {
+                const senhaInput = document.getElementById('senha');
+                const icon = document.getElementById('senha-icon');
+                if (senhaInput.type === 'password') {
+                    senhaInput.type = 'text';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                } else {
+                    senhaInput.type = 'password';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                }
+            }
+        </script>
+
         <!-- Modal para cadastro -->
         <div class="modal fade" id="caduModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -94,47 +156,6 @@ session_start();
             </div>
         </div>
 
-        <?php
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "salas";
-
-        $conn = mysqli_connect($servername, $username, $password, $dbname);
-
-        if (!$conn) {
-            die("Conexão falhou: " . mysqli_connect_error());
-        }
-
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $email = mysqli_real_escape_string($conn, $_POST['email']);
-            $senha = $_POST['senha'];
-
-            // Buscar usuário pelo email
-            $sql = "SELECT * FROM user WHERE email = '$email'";
-            $result = mysqli_query($conn, $sql);
-
-            if ($result && mysqli_num_rows($result) == 1) {
-                $user = mysqli_fetch_assoc($result);
-
-                // Redirecionar com base no tipo de usuário
-                if ($email == 'admreunaaqui@gmail.com') {
-                    header("Location: todas-reservas.php");
-                    exit;
-                } else {
-                    header("Location: reservas.php");
-                    exit;
-                }
-            } else {
-                echo '<script>alert("Senha incorreta!");</script>';
-            }
-        } else {
-            echo '<script>alert("E-mail não encontrado!");</script>';
-        }
-
-
-        mysqli_close($conn);
-        ?>
     </main>
 
     <footer class="rodape mt-5 py-3 text-black">
