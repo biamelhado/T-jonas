@@ -2,6 +2,8 @@
 // Ativar buffer de saída e iniciar sessão
 ob_start();
 session_start();
+
+
 ?>
 
 <!DOCTYPE html>
@@ -115,21 +117,21 @@ session_start();
             if ($result && mysqli_num_rows($result) == 1) {
                 $user = mysqli_fetch_assoc($result);
 
-                    // Redirecionar com base no tipo de usuário
-                    if ($email == 'admreunaaqui@gmail.com') {
-                        header("Location: todas-reservas.php");
-                        exit;
-                    } else {
-                        header("Location: reservas.php");
-                        exit;
-                    }
+                // Redirecionar com base no tipo de usuário
+                if ($email == 'admreunaaqui@gmail.com') {
+                    header("Location: todas-reservas.php");
+                    exit;
                 } else {
-                    echo '<script>alert("Senha incorreta!");</script>';
+                    header("Location: reservas.php");
+                    exit;
                 }
             } else {
-                echo '<script>alert("E-mail não encontrado!");</script>';
+                echo '<script>alert("Senha incorreta!");</script>';
             }
-        
+        } else {
+            echo '<script>alert("E-mail não encontrado!");</script>';
+        }
+
 
         mysqli_close($conn);
         ?>

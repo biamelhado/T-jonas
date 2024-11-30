@@ -61,6 +61,12 @@ $sql = "SELECT
         JOIN reservas ON sala_reservas.id_reserva = reservas.id_reserva
         WHERE reservas.id_user = (SELECT id_user FROM user WHERE email = '$email');";
 $resultreservas = $conn->query($sql);
+// Destruir sessão se o usuário clicar no botão "Sair"
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header("Location: home.php");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -79,6 +85,10 @@ $resultreservas = $conn->query($sql);
 <header class="container">
     <div class="logo">
         <img src="img/logo.png" alt="Logotipo do Reúne Aqui" class="logo img-fluid">
+    </div>
+        <!-- Botão de Sair -->
+        <div class="logout-button">
+        <a href="?logout=true" class="btn btn-danger">Sair</a>
     </div>
 </header>
 
