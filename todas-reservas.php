@@ -1,3 +1,15 @@
+<?php
+// Ativar buffer de saída e iniciar sessão
+ob_start();
+session_start();
+
+// Destruir sessão se o usuário clicar no botão "Sair"
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header("Location: home.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -29,6 +41,10 @@
     <div class="logo">
         <!-- Exibe a imagem da logo do site -->
         <img src="img/logo.png" alt="Logotipo do Reúne Aqui" class="logo img-fluid">
+    </div>
+    <!-- Botão de Sair -->
+    <div class="logout-button">
+        <a href="?logout=true" class="btn btn-danger">Sair</a>
     </div>
 </header>
 <!-- Corpo principal da página -->
