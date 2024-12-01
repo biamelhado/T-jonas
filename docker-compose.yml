@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     build:
@@ -9,6 +11,11 @@ services:
       - .:/var/www/html
     depends_on:
       - db
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=salas
 
   db:
     image: mysql:8.0
@@ -22,11 +29,17 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./sala.sql:/docker-entrypoint-initdb.d/sala.sql
+    networks:
+      - app-network
 
   grafana:
     image: grafana/grafana
     ports:
       - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - app-network
 
   prometheus:
     image: prom/prometheus
@@ -34,6 +47,12 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9091:9090"
+    networks:
+      - app-network
 
 volumes:
   db_data:
+
+networks:
+  app-network:
+    driver: bridge

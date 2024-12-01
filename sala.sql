@@ -11,7 +11,6 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -54,8 +53,8 @@ CREATE TABLE `reservas` (
   `id_reserva` int(11) NOT NULL,
   `qtdlugares` int(3) NOT NULL,
   `datareserva` date NOT NULL,
-  `horarioinicial` time(5) NOT NULL,
-  `horariofinal` time(5) NOT NULL
+  `horarioinicial` time NOT NULL,
+  `horariofinal` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -67,9 +66,9 @@ CREATE TABLE `reservas` (
 CREATE TABLE `user` (
   `id_user` int(11) NOT NULL,
   `nome` VARCHAR(30) NOT NULL,
-  `email` VARCHAR (70) UNIQUE NOT NULL,
-  `senha` VARCHAR (15) NOT NULL
-  'created_at' TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `email` VARCHAR(70) UNIQUE NOT NULL,
+  `senha` VARCHAR(15) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -122,6 +121,7 @@ ALTER TABLE `reservas`
 --
 ALTER TABLE `user`
   MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
